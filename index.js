@@ -11,53 +11,53 @@ var events = require('events');
  */
 
 var OMXPlayer = function(path, options){
-	if (!(this instanceof OMXPlayer)) return new OMXPlayer(path, options);
-	events.EventEmitter.call(this);
-	this.path = path;
-	options = options || {};
-	this.args = [path];
-	for (var key in options) {
-		if (options.hasOwnProperty(key)){
-			this.args = this.args.concat([key, options[key]])
-		}
-	}
-	this.start();
+  if (!(this instanceof OMXPlayer)) return new OMXPlayer(path, options);
+  events.EventEmitter.call(this);
+  this.path = path;
+  options = options || {};
+  this.args = [path];
+  for (var key in options) {
+    if (options.hasOwnProperty(key)){
+      this.args = this.args.concat([key, options[key]])
+    }
+  }
+  this.start();
 }
 
 util.inherits(OMXPlayer, events.EventEmitter);
 
 function mapKey(command, key, then){
-	omx.prototype[command] = function(){
-		omx.sendKey(key);
-		if (then) then();
-	}
+  omx.prototype[command] = function(){
+    omx.sendKey(key);
+    if (then) then();
+  }
 }
 
 OMXPlayer.prototype.start = function(){
-	var omx = this.omx = spawn('omxplayer', this.args);
+  var omx = this.omx = spawn('omxplayer', this.args);
 
-	omx.stdin.setEncoding('utf8');
-	omx.stdout.setEncoding('utf8');
-	omx.stderr.setEncoding('utf8');
+  omx.stdin.setEncoding('utf8');
+  omx.stdout.setEncoding('utf8');
+  omx.stderr.setEncoding('utf8');
 
-	var self = this;
+  var self = this;
 
-	omx.stderr.on('data', function(data){
-		self.emit('data', data);
-	});
+  omx.stderr.on('data', function(data){
+    self.emit('data', data);
+  });
 
-	omx.stderr.on('data', function(data){
-		self.emit('error', data);
-	});
+  omx.stderr.on('data', function(data){
+    self.emit('error', data);
+  });
 
-	omx.on('close', function(){
-		self.emit('closed');
-	});
+  omx.on('close', function(){
+    self.emit('closed');
+  });
 };
 
 OMXPlayer.prototype.sendKey = function(key){
-	if (!this.omx) return;
-	this.omx.stdin.write(key);
+  if (!this.omx) return;
+  this.omx.stdin.write(key);
 };
 
 mapKey('pause', 'p');
