@@ -10,10 +10,10 @@ var events = require('events');
  * @return {OMXPlayer}
  */
 
-var OMXPlayer = function(path, options){
+function OMXPlayer(path, options){
   if (!(this instanceof OMXPlayer)) return new OMXPlayer(path, options);
   events.EventEmitter.call(this);
-  this.path = path;
+  this.path = nodePath.normalize(path);
   options = options || {};
   this.args = [path];
   for (var key in options) {
@@ -23,6 +23,8 @@ var OMXPlayer = function(path, options){
   }
   this.start();
 }
+
+module.exports = OMXPlayer;
 
 util.inherits(OMXPlayer, events.EventEmitter);
 
