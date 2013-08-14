@@ -3,6 +3,9 @@ var nodePath = require('path');
 var util = require('util');
 var events = require('events');
 
+// Export our Constructor
+module.exports = OMXPlayer;
+
 /**
  * OMXPlayer Controller
  * @param  {String} path    to video
@@ -12,6 +15,7 @@ var events = require('events');
 
 function OMXPlayer(path, options){
   if (!(this instanceof OMXPlayer)) return new OMXPlayer(path, options);
+  if (!path) return new Error('Path to video required');
   events.EventEmitter.call(this);
   this.path = nodePath.normalize(path);
   options = options || {};
@@ -24,14 +28,11 @@ function OMXPlayer(path, options){
   this.start();
 }
 
-module.exports = OMXPlayer;
-
 util.inherits(OMXPlayer, events.EventEmitter);
 
-function mapKey(command, key, then){
-  omx.prototype[command] = function(){
-    omx.sendKey(key);
-    if (then) then();
+function mapKey(command, key){
+  OMXPlayer.prototype[command] = function(){
+    this.sendKey.call(this, key);
   }
 }
 
@@ -48,18 +49,25 @@ OMXPlayer.prototype.start = function(){
     self.emit('data', data);
   });
 
-  omx.stderr.on('data', function(data){
-    self.emit('error', data);
+  omx.stderr.on('data', function(data){});
+
+  omx.stdin.on('error', function(err){
+    self.emit('error', err);
   });
 
-  omx.on('close', function(){
+  omx.stdin.on('close', function(){
     self.emit('closed');
+    self.isClosed = true;
   });
+
+  omx.on('error', function(){})
 };
 
 OMXPlayer.prototype.sendKey = function(key){
-  if (!this.omx) return;
-  this.omx.stdin.write(key);
+  if (this.omx && !this.isClosed){
+    console.log('sending key');
+    this.omx.stdin.write(key);
+  }
 };
 
 mapKey('pause', 'p');
