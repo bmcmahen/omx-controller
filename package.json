@@ -1,5 +1,8 @@
 {
   "name": "omx-controller",
   "version": "0.0.1",
-  "main": "index.js"
+  "main": "index.js",
+  "dependencies": {
+  	"underscore" : "*"
+  }
 }
