@@ -1,9 +1,14 @@
 ## omx-controller
 A simple wrapper for controlling OMXPlayer through node.
 
+
+## Install
+
+	npm install omx-controller
+
 ## Example
 ```javascript
-var OMXControl = require('omxcontroller');
+var OMXControl = require('omx-controller');
 var path = '/some/path/to/my/video/file.mp4';
 var omx = new OMXControl(path, {
 	'--vol' : 6,
